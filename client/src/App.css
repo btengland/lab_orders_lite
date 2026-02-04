@@ -2,41 +2,46 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
+  padding-top: 6rem; /* Add space for fixed navbar */
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Fixed navbar at top with rounded corners */
+.navbar-top-fixed {
+  position: fixed !important;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 1050;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0 !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* Adjust container width for fixed navbar */
+.navbar-top-fixed .container {
+  max-width: 100%;
 }
 
-.card {
-  padding: 2em;
+/* Table with matching border radius */
+.table-rounded {
+  border-radius: 0.375rem;
+  overflow: hidden;
 }
 
-.read-the-docs {
-  color: #888;
+.table-rounded thead th:first-child {
+  border-top-left-radius: 0.375rem;
 }
+
+.table-rounded thead th:last-child {
+  border-top-right-radius: 0.375rem;
+}
+
+.table-rounded tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 0.375rem;
+}
+
+.table-rounded tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 0.375rem;
+}
+
