@@ -46,7 +46,8 @@ function PatientModal({
 
   const handleSubmit = () => {
     if (validateRequiredFields()) {
-      onSubmit()
+      const patientId = isEditMode ? patient?.id : null
+      onSubmit(patientId)
     }
   }
 

@@ -1,42 +1,16 @@
-import { useState } from 'react'
-import { Button } from 'reactstrap'
+import { useState, useEffect } from 'react'
+import { Button, Alert } from 'reactstrap'
 import PatientTable from './PatientTable'
 import PatientModal from './PatientModal'
+import { patientApi } from '../../services/api'
 
 function Patients() {
-  // Mock patient data - in real app this would come from an API
-  const [patients, setPatients] = useState([
-    {
-      id: 1,
-      firstName: 'John',
-      lastName: 'Doe',
-      dateOfBirth: '1985-03-15',
-      email: 'john.doe@email.com',
-      phone: '(555) 123-4567',
-      address: '123 Main St, Anytown, ST 12345'
-    },
-    {
-      id: 2,
-      firstName: 'Jane',
-      lastName: 'Smith',
-      dateOfBirth: '1990-07-22',
-      email: 'jane.smith@email.com',
-      phone: '(555) 987-6543',
-      address: '456 Oak Ave, Somewhere, ST 67890'
-    },
-    {
-      id: 3,
-      firstName: 'Robert',
-      lastName: 'Johnson',
-      dateOfBirth: '1978-11-08',
-      email: 'robert.johnson@email.com',
-      phone: '(555) 555-0123',
-      address: '789 Pine Rd, Elsewhere, ST 54321'
-    }
-  ])
-
-  const [editModal, setEditModal] = useState(false)
-  const [createModal, setCreateModal] = useState(false)
+  // State for patients from API
+  const [patients, setPatients] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  
+  const [modal, setModal] = useState(false)
   const [selectedPatient, setSelectedPatient] = useState(null)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -47,20 +21,53 @@ function Patients() {
     address: ''
   })
 
-  const toggleEditModal = () => setEditModal(!editModal)
-  const toggleCreateModal = () => setCreateModal(!createModal)
+  const toggleModal = () => {
+    setModal(!modal)
+  }
 
-  const handlePatientClick = (patient) => {
-    setSelectedPatient(patient)
-    setFormData({
-      firstName: patient.firstName,
-      lastName: patient.lastName,
-      dateOfBirth: patient.dateOfBirth,
-      email: patient.email,
-      phone: patient.phone,
-      address: patient.address
-    })
-    toggleEditModal()
+
+  const handlePatientClick = () => {
+    toggleModal()
+  }
+
+  // Fetch patients from API
+  const handleGetPatients = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await patientApi.getAll()
+      setPatients(data)
+    } catch (err) {
+      setError('Failed to fetch patients. Please try again later.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    handleGetPatients()
+  }, [])
+
+  const handleSubmit = async (id) => {
+    setLoading(true)
+    try {
+      if (id) {
+        // Update existing patient
+        const updatedPatient = await patientApi.update(id, formData)
+        setPatients(prevPatients => prevPatients.map(patient => 
+          patient.id === id ? updatedPatient : patient
+        ))
+      } else {
+        // Create new patient
+        const newPatient = await patientApi.create(formData)
+        setPatients(prevPatients => [newPatient, ...prevPatients])
+      }
+      toggleModal()
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleInputChange = (e) => {
@@ -69,39 +76,6 @@ function Patients() {
       ...prevData,
       [name]: value
     }))
-  }
-
-  const handleCreatePatient = () => {
-    // Here you would typically make an API call to create the patient
-    const newPatient = {
-      id: patients.length + 1,
-      ...formData
-    }
-    setPatients([...patients, newPatient])
-    
-    // Reset form and close modal
-    setFormData({
-      firstName: '',
-      lastName: '',
-      dateOfBirth: '',
-      email: '',
-      phone: '',
-      address: ''
-    })
-    toggleCreateModal()
-  }
-
-  const handleUpdatePatient = () => {
-    // Here you would typically make an API call to update the patient
-    const updatedPatients = patients.map(patient => 
-      patient.id === selectedPatient.id 
-        ? { ...patient, ...formData }
-        : patient
-    )
-    setPatients(updatedPatients)
-    
-    // Close modal
-    toggleEditModal()
   }
 
   const handleCreateModalOpen = () => {
@@ -113,17 +87,25 @@ function Patients() {
       phone: '',
       address: ''
     })
-    toggleCreateModal()
+    toggleModal()
   }
 
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Patients</h2>
-        <Button color="primary" onClick={handleCreateModalOpen}>
+        <Button color="primary" onClick={handleCreateModalOpen} disabled={loading}>
           Add New Patient
         </Button>
       </div>
+
+      {error && (
+        <Alert color="danger" className="mb-3">
+          {error}
+        </Alert>
+      )}
+
+      {loading && <div>Loading...</div>}
 
       <PatientTable 
         patients={patients} 
@@ -132,23 +114,23 @@ function Patients() {
 
       {/* Edit Patient Modal */}
       <PatientModal
-        isOpen={editModal}
-        toggle={toggleEditModal}
+        isOpen={modal}
+        toggle={toggleModal}
         mode="edit"
         patient={selectedPatient}
         formData={formData}
         onInputChange={handleInputChange}
-        onSubmit={handleUpdatePatient}
+        onSubmit={handleSubmit}
       />
 
       {/* Create Patient Modal */}
       <PatientModal
-        isOpen={createModal}
-        toggle={toggleCreateModal}
+        isOpen={modal}
+        toggle={toggleModal}
         mode="create"
         formData={formData}
         onInputChange={handleInputChange}
-        onSubmit={handleCreatePatient}
+        onSubmit={handleSubmit}
       />
     </div>
   )

@@ -1,0 +1,53 @@
+const API_BASE_URL = "http://localhost:3001/api";
+
+// Generic API request function
+const apiRequest = async (endpoint, options = {}) => {
+  const url = `${API_BASE_URL}${endpoint}`;
+
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+    ...options,
+  };
+
+  try {
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(
+        errorData?.error || `HTTP error! status: ${response.status}`,
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("API request failed:", error);
+    throw error;
+  }
+};
+
+// Patient API functions
+export const patientApi = {
+  // Patients
+  getAll: () => apiRequest("/patients"),
+  getById: (id) => apiRequest(`/patients/${id}`),
+  create: (patientData) =>
+    apiRequest("/patients", {
+      method: "POST",
+      body: JSON.stringify(patientData),
+    }),
+  update: (id, patientData) =>
+    apiRequest(`/patients/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(patientData),
+    }),
+  delete: (id) =>
+    apiRequest(`/patients/${id}`, {
+      method: "DELETE",
+    }),
+};
+
+export default { patientApi };

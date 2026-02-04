@@ -2,26 +2,23 @@
 const https = require("http");
 
 async function testAPI() {
-  console.log("🧪 Testing API endpoints...\n");
+  console.log("Testing API endpoints...\n");
 
   // Test 1: Health check
   try {
     const healthData = await makeRequest("GET", "/api/health");
-    console.log("✅ Health Check:", healthData);
+    console.log("Health Check:", healthData);
   } catch (error) {
-    console.log("❌ Health Check failed:", error.message);
+    console.log("Health Check failed:", error.message);
     console.log("   Full error:", error);
   }
 
   // Test 2: Get all patients (might be empty)
   try {
     const patientsData = await makeRequest("GET", "/api/patients");
-    console.log(
-      "✅ Get All Patients:",
-      `Found ${patientsData.length} patients`,
-    );
+    console.log("Get All Patients:", `Found ${patientsData.length} patients`);
   } catch (error) {
-    console.log("❌ Get All Patients failed:", error.message);
+    console.log("Get All Patients failed:", error.message);
   }
 
   // Test 3: Create a patient
@@ -41,7 +38,7 @@ async function testAPI() {
       newPatient,
     );
     console.log(
-      "✅ Create Patient:",
+      "Create Patient:",
       `Created patient with ID: ${createdPatient.id}`,
     );
 
@@ -52,11 +49,11 @@ async function testAPI() {
         `/api/patients/${createdPatient.id}`,
       );
       console.log(
-        "✅ Get Patient by ID:",
+        "Get Patient by ID:",
         `Fetched ${fetchedPatient.firstName} ${fetchedPatient.lastName}`,
       );
     } catch (error) {
-      console.log("❌ Get Patient by ID failed:", error.message);
+      console.log("Get Patient by ID failed:", error.message);
     }
 
     // Test 5: Update patient
@@ -75,17 +72,17 @@ async function testAPI() {
         updateData,
       );
       console.log(
-        "✅ Update Patient:",
+        "Update Patient:",
         `Updated to ${updatedPatient.firstName} ${updatedPatient.lastName}`,
       );
     } catch (error) {
-      console.log("❌ Update Patient failed:", error.message);
+      console.log("Update Patient failed:", error.message);
     }
   } catch (error) {
-    console.log("❌ Create Patient failed:", error.message);
+    console.log("Create Patient failed:", error.message);
   }
 
-  console.log("\n🎉 API testing complete!");
+  console.log("\nAPI testing complete!");
 }
 
 function makeRequest(method, path, data = null) {
