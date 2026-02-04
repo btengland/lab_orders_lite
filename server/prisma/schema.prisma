@@ -13,65 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User model for authentication
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relations
-  orders    Order[]
-}
-
-// Patient model
-model Patient {
-  id          String   @id @default(cuid())
+model Patients {
+  id          Int      @id @default(autoincrement())
   firstName   String
   lastName    String
-  email       String?  @unique
+  dateOfBirth String
   phone       String?
-  dateOfBirth DateTime?
+  email       String   @unique
   address     String?
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  orders      Order[]
-}
-
-// Lab order model
-model Order {
-  id          String      @id @default(cuid())
-  orderNumber String      @unique
-  testType    String
-  status      String      @default("PENDING") // Changed from enum to String
-  priority    String      @default("NORMAL")  // Changed from enum to String  
-  notes       String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  // Relations
-  userId      String?
-  user        User?       @relation(fields: [userId], references: [id])
-  patientId   String
-  patient     Patient     @relation(fields: [patientId], references: [id])
-  results     Result[]
-}
-
-// Test results model
-model Result {
-  id          String   @id @default(cuid())
-  testName    String
-  value       String
-  unit        String?
-  referenceRange String?
-  isNormal    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  orderId     String
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
