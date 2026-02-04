@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Container } from 'reactstrap'
 import Nav from './components/Nav'
-import Patients from './components/Patients'
+import Patients from './view/patients/Patients'
 import './App.css'
 
 function App() {
