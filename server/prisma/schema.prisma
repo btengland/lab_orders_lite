@@ -23,3 +23,12 @@ model Patients {
   address     String?
   createdAt   DateTime @default(now())
 }
+
+model LabTests {
+  id             Int      @id @default(autoincrement())
+  code           String   @unique
+  name           String
+  price          Float
+  turnaroundTime Int
+  createdAt      DateTime @default(now())
+}

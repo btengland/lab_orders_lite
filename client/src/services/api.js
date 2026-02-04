@@ -50,4 +50,24 @@ export const patientApi = {
     }),
 };
 
-export default { patientApi };
+// Lab Test API functions
+export const labTestApi = {
+  getAll: () => apiRequest("/lab-tests"),
+  getById: (id) => apiRequest(`/lab-tests/${id}`),
+  create: (labTestData) =>
+    apiRequest("/lab-tests", {
+      method: "POST",
+      body: JSON.stringify(labTestData),
+    }),
+  update: (id, labTestData) =>
+    apiRequest(`/lab-tests/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(labTestData),
+    }),
+  delete: (id) =>
+    apiRequest(`/lab-tests/${id}`, {
+      method: "DELETE",
+    }),
+};
+
+export default { patientApi, labTestApi };

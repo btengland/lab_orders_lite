@@ -1,22 +1,24 @@
-import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Container } from 'reactstrap'
 import Nav from './components/Nav'
 import Patients from './view/patients/Patients'
+import LabTestCatalog from './view/lab-test-catalog/LabTestCatalog'
 import './App.css'
 
 function App() {
-  const [activeTab, setActiveTab] = useState('patients')
-
   return (
-    <>
-      <Nav activeTab={activeTab} setActiveTab={setActiveTab} />
+    <Router>
+      <Nav />
       
       <Container>
-        {activeTab === 'patients' && <Patients />}
-        {activeTab === 'catalog' && <div><h2>Lab Test Catalog Component</h2></div>}
-        {activeTab === 'orders' && <div><h2>Orders Component</h2></div>}
+        <Routes>
+          <Route path="/" element={<Navigate to="/patients" replace />} />
+          <Route path="/patients" element={<Patients />} />
+          <Route path="/catalog" element={<LabTestCatalog />} />
+          <Route path="/orders" element={<div><h2>Orders Component</h2></div>} />
+        </Routes>
       </Container>
-    </>
+    </Router>
   )
 }
 

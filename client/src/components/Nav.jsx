@@ -1,3 +1,4 @@
+import { useLocation, Link } from 'react-router-dom'
 import { 
   Container, 
   Navbar, 
@@ -7,35 +8,43 @@ import {
   NavLink 
 } from 'reactstrap'
 
-function Nav({ activeTab, setActiveTab }) {
+function Nav() {
+  const location = useLocation()
+  
+  const isActive = (path) => {
+    return location.pathname === path
+  }
+
   return (
     <Navbar color="primary" dark expand="md" className="mb-4 navbar-top-fixed">
       <Container>
-        <NavbarBrand href="/">Lab Orders Lite</NavbarBrand>
+        <NavbarBrand tag={Link} to="/patients">
+          Lab Orders Lite
+        </NavbarBrand>
         <BootstrapNav navbar>
           <NavItem>
             <NavLink 
-              href="#" 
-              active={activeTab === 'patients'}
-              onClick={() => setActiveTab('patients')}
+              tag={Link}
+              to="/patients" 
+              active={isActive('/patients')}
             >
               Patients
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink 
-              href="#" 
-              active={activeTab === 'catalog'}
-              onClick={() => setActiveTab('catalog')}
+              tag={Link}
+              to="/catalog"
+              active={isActive('/catalog')}
             >
               Lab Test Catalog
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink 
-              href="#" 
-              active={activeTab === 'orders'}
-              onClick={() => setActiveTab('orders')}
+              tag={Link}
+              to="/orders"
+              active={isActive('/orders')}
             >
               Orders
             </NavLink>
