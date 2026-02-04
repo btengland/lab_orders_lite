@@ -103,7 +103,7 @@ function LabTestCatalog() {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Lab Test Catalog</h2>
+        <h2 className="me-2">Lab Test Catalog</h2>
         <Button color="primary" onClick={handleCreateModalOpen} disabled={loading}>
           Add New Lab Test
         </Button>

@@ -68,7 +68,7 @@ function LabTestModal({
   }
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size="md">
+    <Modal isOpen={isOpen} toggle={toggle} size="md" centered>
       <ModalHeader toggle={toggle}>
         {title}
       </ModalHeader>
