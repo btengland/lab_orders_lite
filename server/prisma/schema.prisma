@@ -6,11 +6,11 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 // User model for authentication
@@ -46,8 +46,8 @@ model Order {
   id          String      @id @default(cuid())
   orderNumber String      @unique
   testType    String
-  status      OrderStatus @default(PENDING)
-  priority    Priority    @default(NORMAL)
+  status      String      @default("PENDING") // Changed from enum to String
+  priority    String      @default("NORMAL")  // Changed from enum to String  
   notes       String?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -74,19 +74,4 @@ model Result {
   // Relations
   orderId     String
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-}
-
-// Enums
-enum OrderStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-}
-
-enum Priority {
-  LOW
-  NORMAL
-  HIGH
-  URGENT
 }
