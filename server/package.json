@@ -1,0 +1,27 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node index.js",
+    "start": "node index.js",
+    "db:migrate": "npx prisma migrate dev",
+    "db:generate": "npx prisma generate",
+    "db:studio": "npx prisma studio",
+    "db:reset": "npx prisma migrate reset"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/client": "^7.3.0",
+    "dotenv": "^17.2.3",
+    "pg": "^8.18.0"
+  },
+  "devDependencies": {
+    "prisma": "^7.3.0"
+  }
+}
