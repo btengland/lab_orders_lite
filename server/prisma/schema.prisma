@@ -25,11 +25,26 @@ model User {
   orders    Order[]
 }
 
+// Patient model
+model Patient {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String?  @unique
+  phone       String?
+  dateOfBirth DateTime?
+  address     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  orders      Order[]
+}
+
 // Lab order model
 model Order {
   id          String      @id @default(cuid())
   orderNumber String      @unique
-  patientName String
   testType    String
   status      OrderStatus @default(PENDING)
   priority    Priority    @default(NORMAL)
@@ -40,6 +55,8 @@ model Order {
   // Relations
   userId      String?
   user        User?       @relation(fields: [userId], references: [id])
+  patientId   String
+  patient     Patient     @relation(fields: [patientId], references: [id])
   results     Result[]
 }
 
