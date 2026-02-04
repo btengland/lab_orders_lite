@@ -25,8 +25,16 @@ function Patients() {
     setModal(!modal)
   }
 
-
-  const handlePatientClick = () => {
+  const handlePatientClick = (patient) => {
+    setSelectedPatient(patient)
+    setFormData({
+      firstName: patient.firstName,
+      lastName: patient.lastName,
+      dateOfBirth: patient.dateOfBirth,
+      email: patient.email,
+      phone: patient.phone || '',
+      address: patient.address || ''
+    })
     toggleModal()
   }
 
@@ -49,7 +57,7 @@ function Patients() {
   }, [])
 
   const handleSubmit = async (id) => {
-    setLoading(true)
+    console.log(id)
     try {
       if (id) {
         // Update existing patient
@@ -62,6 +70,7 @@ function Patients() {
         const newPatient = await patientApi.create(formData)
         setPatients(prevPatients => [newPatient, ...prevPatients])
       }
+      setSelectedPatient(null)
       toggleModal()
     } catch (err) {
       console.log(err)
@@ -79,6 +88,7 @@ function Patients() {
   }
 
   const handleCreateModalOpen = () => {
+    setSelectedPatient(null)
     setFormData({
       firstName: '',
       lastName: '',
@@ -112,22 +122,12 @@ function Patients() {
         onPatientClick={handlePatientClick}
       />
 
-      {/* Edit Patient Modal */}
+      {/* Patient Modal - switches between edit/create based on selectedPatient */}
       <PatientModal
         isOpen={modal}
         toggle={toggleModal}
-        mode="edit"
+        mode={selectedPatient ? "edit" : "create"}
         patient={selectedPatient}
-        formData={formData}
-        onInputChange={handleInputChange}
-        onSubmit={handleSubmit}
-      />
-
-      {/* Create Patient Modal */}
-      <PatientModal
-        isOpen={modal}
-        toggle={toggleModal}
-        mode="create"
         formData={formData}
         onInputChange={handleInputChange}
         onSubmit={handleSubmit}

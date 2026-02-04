@@ -28,7 +28,7 @@ function PatientModal({
   const title = isEditMode 
     ? `Edit Patient: ${patient?.firstName} ${patient?.lastName}` 
     : 'Add New Patient'
-  
+
   const submitButtonText = isEditMode ? 'Save Changes' : 'Create Patient'
 
   const validateRequiredFields = () => {
