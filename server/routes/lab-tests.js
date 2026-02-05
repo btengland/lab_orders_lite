@@ -40,7 +40,12 @@ router.get("/", async (req, res) => {
     const labTests = await prisma.labTests.findMany({
       orderBy: { createdAt: "desc" },
     });
-    res.json(labTests);
+    // Convert turnaroundTime BigInt to string for all items
+    const safeLabTests = labTests.map((test) => ({
+      ...test,
+      turnaroundTime: test.turnaroundTime?.toString(),
+    }));
+    res.json(safeLabTests);
   } catch (error) {
     handleError(res, error, "fetch lab tests");
   }
