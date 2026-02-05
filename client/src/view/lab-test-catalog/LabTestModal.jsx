@@ -34,20 +34,20 @@ function LabTestModal({
   const submitButtonText = isEditMode ? 'Save Changes' : 'Create Lab Test'
 
   const MAX_TURNAROUND_HOURS = 8760;
-  const validateRequiredFields = () => {
+  const handleSubmit = () => {
     const requiredFields = ['code', 'name', 'price', 'turnaroundTime']
     const missingFields = requiredFields.filter(field => !formData[field]?.toString().trim())
     if (missingFields.length > 0) {
       setError('Please fill out all required fields marked with *')
-      return false
+      return
     }
-    // Validate price is a positive number
+
     const price = parseFloat(formData.price)
     if (isNaN(price) || price <= 0) {
       setError('Price must be a positive number')
-      return false
+      return
     }
-    // Validate turnaround time is a positive integer and within max
+
     const turnaroundTime = parseInt(formData.turnaroundTime)
     if (
       isNaN(turnaroundTime) ||
@@ -55,17 +55,11 @@ function LabTestModal({
       turnaroundTime > MAX_TURNAROUND_HOURS
     ) {
       setError(`Turnaround time must be a positive number of hours and no more than ${MAX_TURNAROUND_HOURS}`)
-      return false
+      return
     }
     setError('')
-    return true
-  }
-
-  const handleSubmit = () => {
-    if (validateRequiredFields()) {
-      const labTestId = isEditMode ? labTest?.id : null
-      onSubmit(labTestId)
-    }
+    const labTestId = isEditMode ? labTest?.id : null
+    onSubmit(labTestId)
   }
 
   return (
@@ -89,7 +83,6 @@ function LabTestModal({
                   type="text"
                   name="code"
                   id="code"
-                  placeholder="e.g., CBC, BMP"
                   value={formData.code}
                   onChange={onInputChange}
                 />
@@ -102,7 +95,6 @@ function LabTestModal({
                   type="text"
                   name="name"
                   id="name"
-                  placeholder="e.g., Complete Blood Count"
                   value={formData.name}
                   onChange={onInputChange}
                 />
@@ -120,7 +112,6 @@ function LabTestModal({
                     type="number"
                     name="price"
                     id="price"
-                    placeholder="0.00"
                     min="0"
                     step="0.01"
                     value={formData.price}
@@ -137,7 +128,6 @@ function LabTestModal({
                     type="number"
                     name="turnaroundTime"
                     id="turnaroundTime"
-                    placeholder="24"
                     min="1"
                     max={MAX_TURNAROUND_HOURS}
                     value={formData.turnaroundTime}

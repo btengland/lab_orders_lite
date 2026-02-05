@@ -30,7 +30,6 @@ function LabTestCatalog({labTests, refetchLabTests, loading}) {
   }
 
   const handleSubmit = async (id) => {
-    console.log(id)
     try {
       const submitData = {
         ...formData,

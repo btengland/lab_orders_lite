@@ -31,24 +31,16 @@ function PatientModal({
 
   const submitButtonText = isEditMode ? 'Save Changes' : 'Create Patient'
 
-  const validateRequiredFields = () => {
+  const handleSubmit = () => {
     const requiredFields = ['firstName', 'lastName', 'dateOfBirth', 'email']
     const missingFields = requiredFields.filter(field => !formData[field]?.trim())
-    
     if (missingFields.length > 0) {
       setError('Please fill out all required fields marked with *')
-      return false
+      return
     }
-    
     setError('')
-    return true
-  }
-
-  const handleSubmit = () => {
-    if (validateRequiredFields()) {
-      const patientId = isEditMode ? patient?.id : null
-      onSubmit(patientId)
-    }
+    const patientId = isEditMode ? patient?.id : null
+    onSubmit(patientId)
   }
 
   return (
@@ -67,7 +59,7 @@ function PatientModal({
             <Col md={6}>
               <FormGroup>
                 <Label for={`${mode}FirstName`}>
-                  First Name <span className="text-danger">*</span>
+                  First Name *
                 </Label>
                 <Input
                   type="text"
@@ -82,7 +74,7 @@ function PatientModal({
             <Col md={6}>
               <FormGroup>
                 <Label for={`${mode}LastName`}>
-                  Last Name <span className="text-danger">*</span>
+                  Last Name *
                 </Label>
                 <Input
                   type="text"
@@ -99,7 +91,7 @@ function PatientModal({
             <Col md={6}>
               <FormGroup>
                 <Label for={`${mode}DateOfBirth`}>
-                  Date of Birth <span className="text-danger">*</span>
+                  Date of Birth *
                 </Label>
                 <Input
                   type="date"
@@ -126,7 +118,7 @@ function PatientModal({
           </Row>
           <FormGroup>
             <Label for={`${mode}Email`}>
-              Email <span className="text-danger">*</span>
+              Email *
             </Label>
             <Input
               type="email"

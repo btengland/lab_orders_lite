@@ -76,7 +76,6 @@ router.post("/", async (req, res) => {
         turnaroundTime: parseInt(turnaroundTime),
       },
     });
-    res.status(201).json(labTest);
     res.status(201).json({
       ...labTest,
       turnaroundTime: labTest.turnaroundTime?.toString(),
@@ -121,7 +120,6 @@ router.put("/:id", async (req, res) => {
       });
     }
 
-    // Validate price and turnaroundTime
     const validation = validateLabTestFields({ price, turnaroundTime });
     if (!validation.valid) {
       return res.status(400).json({ error: validation.error });
@@ -136,7 +134,7 @@ router.put("/:id", async (req, res) => {
         turnaroundTime: parseInt(turnaroundTime),
       },
     });
-    // Convert BigInt to string
+
     res.json({
       ...labTest,
       turnaroundTime: labTest.turnaroundTime?.toString(),

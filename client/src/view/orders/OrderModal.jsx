@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input, Alert } from 'reactstrap'
 
-function OrderModal({ isOpen, toggle, patients, labTests, mode, order, formData, onInputChange, onTestIdsChange, onSubmit }) {
+function OrderModal({ isOpen, toggle, patients = [], labTests = [], mode, order, formData, onInputChange, onTestIdsChange, onSubmit }) {
   const [error, setError] = useState(null)
 
   const handleTestSelection = (testId) => {
