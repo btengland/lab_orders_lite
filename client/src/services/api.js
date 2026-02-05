@@ -69,5 +69,31 @@ export const labTestApi = {
       method: "DELETE",
     }),
 };
+// Order API functions
+export const orderApi = {
+  getAll: (filters = {}) => {
+    const queryParams = new URLSearchParams();
+    if (filters.patientName)
+      queryParams.append("patientName", filters.patientName);
+    if (filters.status) queryParams.append("status", filters.status);
 
+    const queryString = queryParams.toString();
+    return apiRequest(`/orders${queryString ? `?${queryString}` : ""}`);
+  },
+  getById: (id) => apiRequest(`/orders/${id}`),
+  create: (orderData) =>
+    apiRequest("/orders", {
+      method: "POST",
+      body: JSON.stringify(orderData),
+    }),
+  update: (id, orderData) =>
+    apiRequest(`/orders/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(orderData),
+    }),
+  delete: (id) =>
+    apiRequest(`/orders/${id}`, {
+      method: "DELETE",
+    }),
+};
 export default { patientApi, labTestApi };

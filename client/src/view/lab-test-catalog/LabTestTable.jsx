@@ -1,3 +1,4 @@
+import React from 'react'
 import { Table, Button, Card, CardBody } from 'reactstrap'
 
 function LabTestTable({ labTests, onLabTestClick }) {

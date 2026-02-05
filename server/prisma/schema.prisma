@@ -22,6 +22,7 @@ model Patients {
   email       String   @unique
   address     String?
   createdAt   DateTime @default(now())
+  orders      Order[]
 }
 
 model LabTests {
@@ -31,4 +32,15 @@ model LabTests {
   price          Float
   turnaroundTime Int
   createdAt      DateTime @default(now())
+}
+
+model Order {
+  id            Int      @id @default(autoincrement())
+  patientId     Int
+  testIds       String  
+  totalCost     Float
+  estimatedDate DateTime
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  patient       Patients @relation(fields: [patientId], references: [id])
 }

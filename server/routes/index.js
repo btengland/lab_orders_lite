@@ -1,6 +1,7 @@
 const express = require("express");
 const patientRoutes = require("./patients");
 const labTestRoutes = require("./lab-tests");
+const orderRoutes = require("./orders");
 
 const router = express.Router();
 
@@ -14,5 +15,8 @@ router.use("/patients", patientRoutes);
 
 // Mount lab test routes
 router.use("/lab-tests", labTestRoutes);
+
+// Mount order routes
+router.use("/orders", orderRoutes);
 
 module.exports = router;

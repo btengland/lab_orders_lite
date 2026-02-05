@@ -1,8 +1,10 @@
+import React from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Container } from 'reactstrap'
 import Nav from './components/Nav'
 import Patients from './view/patients/Patients'
 import LabTestCatalog from './view/lab-test-catalog/LabTestCatalog'
+import Orders from './view/orders/Orders'
 import './App.css'
 
 function App() {
@@ -15,7 +17,7 @@ function App() {
           <Route path="/" element={<Navigate to="/patients" replace />} />
           <Route path="/patients" element={<Patients />} />
           <Route path="/catalog" element={<LabTestCatalog />} />
-          <Route path="/orders" element={<div><h2>Orders Component</h2></div>} />
+          <Route path="/orders" element={<Orders />} />
         </Routes>
       </Container>
     </Router>
