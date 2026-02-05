@@ -5,12 +5,11 @@ import OrderModal from './OrderModal'
 import { orderApi, patientApi } from '../../services/api'
 
 function Orders() {
-  // State for orders from API
+  const [allOrders, setAllOrders] = useState([])
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   
-  // Filter state
   const [filters, setFilters] = useState({
     patientName: '',
     status: ''
@@ -33,38 +32,26 @@ function Orders() {
   const handleOrderClick = (order) => {
     setSelectedOrder(order)
     
-    // Handle testIds - could be array or JSON string
     let testIds = order.testIds
-    if (typeof testIds === 'string') {
-      try {
-        testIds = JSON.parse(testIds)
-      } catch (e) {
-        testIds = []
-      }
-    }
-    testIds = Array.isArray(testIds) ? testIds.filter(id => id !== null && id !== undefined) : []
-    
+
     setFormData({
-      patientId: order.patientId.toString(),
+      patientId: order.patientId,
       testIds: testIds,
-      totalCost: order.totalCost.toString(),
+      totalCost: order.totalCost,
       estimatedDate: new Date(order.estimatedDate).toISOString().split('T')[0],
       status: order.status
     })
     toggleModal()
   }
 
-  // Fetch orders from API with current filters
-  const handleGetData = async (currentFilters = filters) => {
+
+  // Fetch orders with filters
+  const handleGetData = async (activeFilters = filters) => {
     setLoading(true)
     setError(null)
     try {
-      // Build filter object, only include non-empty values
-      const filterParams = {}
-      if (currentFilters.patientName.trim()) filterParams.patientName = currentFilters.patientName.trim()
-      if (currentFilters.status) filterParams.status = currentFilters.status
-      
-      const ordersData = await orderApi.getAll(filterParams)
+      const ordersData = await orderApi.getAll(activeFilters)
+      setAllOrders(ordersData)
       setOrders(ordersData)
     } catch (err) {
       setError('Failed to fetch orders. Please try again later.')
@@ -77,13 +64,8 @@ function Orders() {
     handleGetData()
   }, [])
 
-  // Debounce filter changes to avoid too many API calls
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      handleGetData(filters)
-    }, 300) // Wait 300ms after user stops typing
-
-    return () => clearTimeout(timeoutId)
+    handleGetData(filters)
   }, [filters])
 
   const handleFilterChange = (e) => {
@@ -105,21 +87,19 @@ function Orders() {
     setLoading(true)
     try {
       const dataToSubmit = cleanedFormData || formData
+
       const submitData = {
         ...dataToSubmit,
-        patientId: parseInt(dataToSubmit.patientId),
-        testIds: (dataToSubmit.testIds || []).filter(id => id !== null && id !== undefined).map(id => parseInt(id)),
-        totalCost: parseFloat(dataToSubmit.totalCost),
-        estimatedDate: new Date(dataToSubmit.estimatedDate).toISOString()
+        patientId: dataToSubmit.patientId,
+        testIds: dataToSubmit.testIds,
+        totalCost: dataToSubmit.totalCost,
+        estimatedDate: dataToSubmit.estimatedDate
       }
       
       if (id) {
-        // Update existing order
         const updatedOrder = await orderApi.update(id, submitData)
-        // Refresh the entire orders list to ensure data consistency
         await handleGetData()
       } else {
-        // Create new order
         const newOrder = await orderApi.create(submitData)
         await handleGetData()
       }

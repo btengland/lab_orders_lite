@@ -8,13 +8,6 @@ function OrderModal({ isOpen, toggle, mode, order, formData, onInputChange, onTe
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Load patients and lab tests when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      loadData()
-    }
-  }, [isOpen])
-
   const loadData = async () => {
     setLoading(true)
     setError(null)
@@ -31,72 +24,56 @@ function OrderModal({ isOpen, toggle, mode, order, formData, onInputChange, onTe
       setLoading(false)
     }
   }
+  
+    useEffect(() => {
+    if (isOpen) {
+      loadData()
+    }
+  }, [isOpen])
+
 
   const handleTestSelection = (testId) => {
-    const currentTestIds = (formData.testIds || []).filter(id => id !== null && id !== undefined)
-    let newTestIds
-    
-    if (currentTestIds.includes(testId)) {
-      // Remove test if already selected
-      newTestIds = currentTestIds.filter(id => id !== testId)
+    const testIdsSet = new Set(formData.testIds || [])
+    if (testIdsSet.has(testId)) {
+      testIdsSet.delete(testId)
     } else {
-      // Add test if not selected
-      newTestIds = [...currentTestIds, testId]
+      testIdsSet.add(testId)
     }
-    
-    // Remove any null/undefined values and duplicates
-    newTestIds = [...new Set(newTestIds.filter(id => id !== null && id !== undefined))]
-    
+    let newTestIds = Array.from(testIdsSet)
+
     onTestIdsChange(newTestIds)
-    
-    // Calculate total cost
-    const totalCost = newTestIds.reduce((sum, testId) => {
-      const test = labTests.find(t => t.id === testId)
-      return sum + (test ? test.price : 0)
-    }, 0)
-    
-    onInputChange({
-      target: {
-        name: 'totalCost',
-        value: totalCost.toString()
+
+    let totalCost = 0
+    let maxTurnaround = 0
+    newTestIds.forEach(id => {
+      const test = labTests.find(t => t.id === id)
+      if (test) {
+        totalCost += test.price
+        maxTurnaround = Math.max(maxTurnaround, test.turnaroundTime)
       }
     })
-    
-    // Calculate estimated date (max turnaround time)
-    const maxTurnaround = newTestIds.reduce((max, testId) => {
-      const test = labTests.find(t => t.id === testId)
-      return Math.max(max, test ? test.turnaroundTime : 0)
-    }, 0)
-    
+
+    onInputChange({
+      target: { name: 'totalCost', value: totalCost.toString() }
+    })
+
     const estimatedDate = new Date()
     estimatedDate.setHours(estimatedDate.getHours() + maxTurnaround)
-    
+
     onInputChange({
-      target: {
-        name: 'estimatedDate',
-        value: estimatedDate.toISOString().split('T')[0]
-      }
+      target: { name: 'estimatedDate', value: estimatedDate.toISOString().split('T')[0] }
     })
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    
-    // Clean up testIds - remove nulls, undefined, and duplicates
-    const cleanTestIds = [...new Set((formData.testIds || []).filter(id => id !== null && id !== undefined))]
-    
-    if (!formData.patientId || cleanTestIds.length === 0) {
+        
+    if (!formData.patientId || formData.testIds.length === 0) {
       setError('Please select a patient and at least one test.')
       return
     }
     
-    // Update formData with cleaned testIds before submitting
-    const cleanedFormData = {
-      ...formData,
-      testIds: cleanTestIds
-    }
-    
-    onSubmit(order?.id, cleanedFormData)
+    onSubmit(order?.id, formData)
   }
 
   return (

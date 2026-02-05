@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import LabTestCatalog from './LabTestCatalog'
 import { labTestApi } from '../../services/api'
@@ -22,10 +22,11 @@ jest.mock('./LabTestTable', () => {
 jest.mock('./LabTestModal', () => {
   return function MockLabTestModal({ isOpen, mode, onSubmit }) {
     if (!isOpen) return null
+    const buttonText = mode === 'edit' ? 'Save Changes' : 'Create Lab Test';
     return (
       <div data-testid="lab-test-modal">
         <span>{mode} Lab Test Modal</span>
-        <button onClick={() => onSubmit()}>Submit</button>
+        <button onClick={() => onSubmit()}>{buttonText}</button>
       </div>
     )
   }
@@ -63,12 +64,14 @@ describe('LabTestCatalog Component', () => {
 
   test('fetches and displays lab tests on load', async () => {
     labTestApi.getAll.mockResolvedValue(mockLabTests)
-    render(<LabTestCatalog />)
-    
-    await waitFor(() => {
-      expect(labTestApi.getAll).toHaveBeenCalled()
+    await act(async () => {
+      render(<LabTestCatalog />)
     })
-    
+    await act(async () => {
+      await waitFor(() => {
+        expect(labTestApi.getAll).toHaveBeenCalled()
+      })
+    })
     expect(screen.getByText('Complete Blood Count - CBC')).toBeInTheDocument()
     expect(screen.getByText('Lipid Panel - LIPID')).toBeInTheDocument()
   })
@@ -82,20 +85,25 @@ describe('LabTestCatalog Component', () => {
 
   test('shows error message when fetch fails', async () => {
     labTestApi.getAll.mockRejectedValue(new Error('API Error'))
-    render(<LabTestCatalog />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('Failed to fetch lab tests. Please try again later.')).toBeInTheDocument()
+    await act(async () => {
+      render(<LabTestCatalog />)
+    })
+    await act(async () => {
+      await waitFor(() => {
+        expect(screen.getByText('Failed to fetch lab tests. Please try again later.')).toBeInTheDocument()
+      })
     })
   })
 
   test('opens create modal when Add New Lab Test is clicked', async () => {
     labTestApi.getAll.mockResolvedValue([])
     const user = userEvent.setup()
-    render(<LabTestCatalog />)
-    
-    await user.click(screen.getByText('Add New Lab Test'))
-    
+    await act(async () => {
+      render(<LabTestCatalog />)
+    })
+    await act(async () => {
+      await user.click(screen.getByText('Add New Lab Test'))
+    })
     expect(screen.getByTestId('lab-test-modal')).toBeInTheDocument()
     expect(screen.getByText('create Lab Test Modal')).toBeInTheDocument()
   })
@@ -103,14 +111,15 @@ describe('LabTestCatalog Component', () => {
   test('opens edit modal when lab test is clicked', async () => {
     labTestApi.getAll.mockResolvedValue(mockLabTests)
     const user = userEvent.setup()
-    render(<LabTestCatalog />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('Complete Blood Count - CBC')).toBeInTheDocument()
+    await act(async () => {
+      render(<LabTestCatalog />)
     })
-    
-    await user.click(screen.getByText('Complete Blood Count - CBC'))
-    
+    await act(async () => {
+      await waitFor(() => {
+        expect(screen.getByText('Complete Blood Count - CBC')).toBeInTheDocument()
+      })
+      await user.click(screen.getByText('Complete Blood Count - CBC'))
+    })
     expect(screen.getByTestId('lab-test-modal')).toBeInTheDocument()
     expect(screen.getByText('edit Lab Test Modal')).toBeInTheDocument()
   })
@@ -119,15 +128,21 @@ describe('LabTestCatalog Component', () => {
     const newLabTest = { id: 3, code: 'BMP', name: 'Basic Metabolic Panel', price: 30.00, turnaroundTime: 24 }
     labTestApi.getAll.mockResolvedValue([])
     labTestApi.create.mockResolvedValue(newLabTest)
-    
     const user = userEvent.setup()
-    render(<LabTestCatalog />)
-    
-    await user.click(screen.getByText('Add New Lab Test'))
-    await user.click(screen.getByText('Submit'))
-    
-    await waitFor(() => {
-      expect(labTestApi.create).toHaveBeenCalled()
+    await act(async () => {
+      render(<LabTestCatalog />)
+    })
+    await act(async () => {
+      await user.click(screen.getByText('Add New Lab Test'))
+    })
+    expect(screen.getByTestId('lab-test-modal')).toBeInTheDocument()
+    await act(async () => {
+      await user.click(screen.getByText('Create Lab Test'))
+    })
+    await act(async () => {
+      await waitFor(() => {
+        expect(labTestApi.create).toHaveBeenCalled()
+      })
     })
   })
 })

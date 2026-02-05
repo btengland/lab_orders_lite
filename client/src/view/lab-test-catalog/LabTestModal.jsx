@@ -33,29 +33,30 @@ function LabTestModal({
 
   const submitButtonText = isEditMode ? 'Save Changes' : 'Create Lab Test'
 
+  const MAX_TURNAROUND_HOURS = 8760;
   const validateRequiredFields = () => {
     const requiredFields = ['code', 'name', 'price', 'turnaroundTime']
     const missingFields = requiredFields.filter(field => !formData[field]?.toString().trim())
-    
     if (missingFields.length > 0) {
       setError('Please fill out all required fields marked with *')
       return false
     }
-    
     // Validate price is a positive number
     const price = parseFloat(formData.price)
     if (isNaN(price) || price <= 0) {
       setError('Price must be a positive number')
       return false
     }
-    
-    // Validate turnaround time is a positive integer
+    // Validate turnaround time is a positive integer and within max
     const turnaroundTime = parseInt(formData.turnaroundTime)
-    if (isNaN(turnaroundTime) || turnaroundTime <= 0) {
-      setError('Turnaround time must be a positive number of hours')
+    if (
+      isNaN(turnaroundTime) ||
+      turnaroundTime <= 0 ||
+      turnaroundTime > MAX_TURNAROUND_HOURS
+    ) {
+      setError(`Turnaround time must be a positive number of hours and no more than ${MAX_TURNAROUND_HOURS}`)
       return false
     }
-    
     setError('')
     return true
   }
@@ -74,7 +75,7 @@ function LabTestModal({
       </ModalHeader>
       <ModalBody>
         {error && (
-          <Alert color="danger" className="mb-3">
+          <Alert color="danger" className="mb-3" timeout={150}>
             {error}
           </Alert>
         )}
@@ -138,6 +139,7 @@ function LabTestModal({
                     id="turnaroundTime"
                     placeholder="24"
                     min="1"
+                    max={MAX_TURNAROUND_HOURS}
                     value={formData.turnaroundTime}
                     onChange={onInputChange}
                   />

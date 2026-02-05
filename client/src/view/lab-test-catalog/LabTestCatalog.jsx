@@ -110,7 +110,7 @@ function LabTestCatalog() {
       </div>
 
       {error && (
-        <Alert color="danger" className="mb-3">
+        <Alert color="danger" className="mb-3" timeout={150}>
           {error}
         </Alert>
       )}

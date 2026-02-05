@@ -69,17 +69,10 @@ export const labTestApi = {
       method: "DELETE",
     }),
 };
+
 // Order API functions
 export const orderApi = {
-  getAll: (filters = {}) => {
-    const queryParams = new URLSearchParams();
-    if (filters.patientName)
-      queryParams.append("patientName", filters.patientName);
-    if (filters.status) queryParams.append("status", filters.status);
-
-    const queryString = queryParams.toString();
-    return apiRequest(`/orders${queryString ? `?${queryString}` : ""}`);
-  },
+  getAll: () => apiRequest("/orders"),
   getById: (id) => apiRequest(`/orders/${id}`),
   create: (orderData) =>
     apiRequest("/orders", {

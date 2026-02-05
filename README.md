@@ -47,4 +47,4 @@ npm run dev
 
 **Database:** SQLite with Prisma.
 
-**Development Approach:** This project leverages AI assistance for rapid development, including automated test generation and portions of the Orders module implementation. All AI-generated code has been reviewed and integrated to ensure quality and functionality.
+**What I would have done differently:** If I had more time, I would optimize the the create and search feature so that it doesn't require refetching all data, which currently causes long loading times. The main issue is that the backend returns only the patient ID, not the patient name, so the frontend has to refetch patient details. I would add more validations for number only inputs and other inputs. I would also invest more time in learning best practices for backend testing. While I used AI assistance to help generate many of my tests due to limited unit testing experience, I carefully reviewed and validated all test code.

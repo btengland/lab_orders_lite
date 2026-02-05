@@ -35,7 +35,7 @@ const mockOrders = [
   { 
     id: 1, 
     patientId: 1,
-    testIds: '[1, 2]',
+    testIds: [1, 2],
     totalCost: 60.50,
     estimatedDate: '2026-02-05T00:00:00.000Z',
     status: 'pending'
@@ -43,7 +43,7 @@ const mockOrders = [
   { 
     id: 2, 
     patientId: 2,
-    testIds: '[1]',
+    testIds: [1],
     totalCost: 25.50,
     estimatedDate: '2026-02-06T00:00:00.000Z',
     status: 'completed'
@@ -77,13 +77,10 @@ describe('Orders Component', () => {
     orderApi.getAll.mockResolvedValue(mockOrders)
     patientApi.getAll.mockResolvedValue([])
     render(<Orders />)
-    
     await waitFor(() => {
-      expect(orderApi.getAll).toHaveBeenCalled()
+      expect(screen.getByText('Order #1 - pending')).toBeInTheDocument()
+      expect(screen.getByText('Order #2 - completed')).toBeInTheDocument()
     })
-    
-    expect(screen.getByText('Order #1 - pending')).toBeInTheDocument()
-    expect(screen.getByText('Order #2 - completed')).toBeInTheDocument()
   })
 
   test('shows loading state', () => {
@@ -140,10 +137,9 @@ describe('Orders Component', () => {
     
     const patientNameInput = screen.getByLabelText('Filter by Patient Name')
     await user.type(patientNameInput, 'John')
-    
     await waitFor(() => {
-      expect(orderApi.getAll).toHaveBeenCalledWith({ patientName: 'John' })
-    }, { timeout: 1000 })
+      expect(orderApi.getAll).toHaveBeenLastCalledWith({ patientName: 'John', status: '' })
+    })
   })
 
   test('filters orders by status', async () => {
@@ -154,9 +150,8 @@ describe('Orders Component', () => {
     
     const statusSelect = screen.getByLabelText('Filter by Status')
     await user.selectOptions(statusSelect, 'completed')
-    
     await waitFor(() => {
-      expect(orderApi.getAll).toHaveBeenCalledWith({ status: 'completed' })
+      expect(orderApi.getAll).toHaveBeenLastCalledWith({ patientName: '', status: 'completed' })
     })
   })
 
