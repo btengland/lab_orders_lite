@@ -1,36 +1,8 @@
+import React, { useState } from 'react'
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input, Alert } from 'reactstrap'
-import React, { useState, useEffect } from 'react'
-import { patientApi, labTestApi } from '../../services/api'
 
-function OrderModal({ isOpen, toggle, mode, order, formData, onInputChange, onTestIdsChange, onSubmit }) {
-  const [patients, setPatients] = useState([])
-  const [labTests, setLabTests] = useState([])
-  const [loading, setLoading] = useState(false)
+function OrderModal({ isOpen, toggle, patients, labTests, mode, order, formData, onInputChange, onTestIdsChange, onSubmit }) {
   const [error, setError] = useState(null)
-
-  const loadData = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const [patientsData, labTestsData] = await Promise.all([
-        patientApi.getAll(),
-        labTestApi.getAll()
-      ])
-      setPatients(patientsData)
-      setLabTests(labTestsData)
-    } catch (err) {
-      setError('Failed to load data. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-  
-    useEffect(() => {
-    if (isOpen) {
-      loadData()
-    }
-  }, [isOpen])
-
 
   const handleTestSelection = (testId) => {
     const testIdsSet = new Set(formData.testIds || [])
@@ -89,8 +61,6 @@ function OrderModal({ isOpen, toggle, mode, order, formData, onInputChange, onTe
               {error}
             </Alert>
           )}
-          
-          {loading && <div>Loading data...</div>}
           
           <FormGroup>
             <Label for="patientId">Patient</Label>

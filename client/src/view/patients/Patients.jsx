@@ -4,11 +4,7 @@ import PatientTable from './PatientTable'
 import PatientModal from './PatientModal'
 import { patientApi } from '../../services/api'
 
-function Patients() {
-  // State for patients from API
-  const [patients, setPatients] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+function Patients({patients, refetchPatients, loading}) {
   
   const [modal, setModal] = useState(false)
   const [selectedPatient, setSelectedPatient] = useState(null)
@@ -38,44 +34,21 @@ function Patients() {
     toggleModal()
   }
 
-  // Fetch patients from API
-  const handleGetPatients = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await patientApi.getAll()
-      setPatients(data)
-    } catch (err) {
-      setError('Failed to fetch patients. Please try again later.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    handleGetPatients()
-  }, [])
-
   const handleSubmit = async (id) => {
-    console.log(id)
     try {
       if (id) {
         // Update existing patient
-        const updatedPatient = await patientApi.update(id, formData)
-        setPatients(prevPatients => prevPatients.map(patient => 
-          patient.id === id ? updatedPatient : patient
-        ))
+        await patientApi.update(id, formData)
+        refetchPatients()
       } else {
         // Create new patient
-        const newPatient = await patientApi.create(formData)
-        setPatients(prevPatients => [newPatient, ...prevPatients])
+        await patientApi.create(formData)
+        refetchPatients()
       }
       setSelectedPatient(null)
       toggleModal()
     } catch (err) {
       console.log(err)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -108,14 +81,6 @@ function Patients() {
           Add New Patient
         </Button>
       </div>
-
-      {error && (
-        <Alert color="danger" className="mb-3">
-          {error}
-        </Alert>
-      )}
-
-      {loading && <div>Loading...</div>}
 
       <PatientTable 
         patients={patients} 

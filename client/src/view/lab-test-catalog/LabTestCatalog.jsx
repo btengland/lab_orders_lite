@@ -1,15 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import { Button, Alert } from 'reactstrap'
+import React, { useState } from 'react'
+import { Button } from 'reactstrap'
 import LabTestTable from './LabTestTable'
 import LabTestModal from './LabTestModal'
 import { labTestApi } from '../../services/api'
 
-function LabTestCatalog() {
-  // State for lab tests from API
-  const [labTests, setLabTests] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  
+function LabTestCatalog({labTests, refetchLabTests, loading}) {
   const [modal, setModal] = useState(false)
   const [selectedLabTest, setSelectedLabTest] = useState(null)
   const [formData, setFormData] = useState({
@@ -34,24 +29,6 @@ function LabTestCatalog() {
     toggleModal()
   }
 
-  // Fetch lab tests from API
-  const handleGetLabTests = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await labTestApi.getAll()
-      setLabTests(data)
-    } catch (err) {
-      setError('Failed to fetch lab tests. Please try again later.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    handleGetLabTests()
-  }, [])
-
   const handleSubmit = async (id) => {
     console.log(id)
     try {
@@ -63,21 +40,17 @@ function LabTestCatalog() {
       
       if (id) {
         // Update existing lab test
-        const updatedLabTest = await labTestApi.update(id, submitData)
-        setLabTests(prevLabTests => prevLabTests.map(labTest => 
-          labTest.id === id ? updatedLabTest : labTest
-        ))
+        await labTestApi.update(id, submitData)
+        refetchLabTests()
       } else {
         // Create new lab test
-        const newLabTest = await labTestApi.create(submitData)
-        setLabTests(prevLabTests => [newLabTest, ...prevLabTests])
+        await labTestApi.create(submitData)
+        refetchLabTests()
       }
       setSelectedLabTest(null)
       toggleModal()
     } catch (err) {
       console.log(err)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -108,14 +81,6 @@ function LabTestCatalog() {
           Add New Lab Test
         </Button>
       </div>
-
-      {error && (
-        <Alert color="danger" className="mb-3" timeout={150}>
-          {error}
-        </Alert>
-      )}
-
-      {loading && <div>Loading...</div>}
 
       <LabTestTable 
         labTests={labTests} 

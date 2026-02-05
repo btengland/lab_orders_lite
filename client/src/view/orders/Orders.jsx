@@ -1,20 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import { Button, Alert, Row, Col, Input, FormGroup, Label } from 'reactstrap'
+import React, { useEffect, useState } from 'react'
+import { Button, Row, Col, Input, FormGroup, Label } from 'reactstrap'
 import OrderTable from './OrderTable'
 import OrderModal from './OrderModal'
-import { orderApi, patientApi } from '../../services/api'
+import { orderApi } from '../../services/api'
 
-function Orders() {
-  const [allOrders, setAllOrders] = useState([])
-  const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  
+function Orders({labTests, orders, patients, refetchOrders, loading}) {
   const [filters, setFilters] = useState({
     patientName: '',
     status: ''
   })
   
+  const [filteredOrders, setFilteredOrders] = useState(orders)
   const [modal, setModal] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [formData, setFormData] = useState({
@@ -29,8 +25,18 @@ function Orders() {
     setModal(!modal)
   }
 
+  useEffect(() => {
+    setFilteredOrders(orders.filter(order => {
+      const patientName = order.patient ? `${order.patient.firstName} ${order.patient.lastName}`.toLowerCase() : ''
+      const matchesPatient = patientName.includes(filters.patientName.toLowerCase())
+      const matchesStatus = filters.status ? order.status.toLowerCase() === filters.status.toLowerCase() : true
+      return matchesPatient && matchesStatus
+    }))
+  }, [filters, orders])
+
   const handleOrderClick = (order) => {
     setSelectedOrder(order)
+    // I was having some issues with test ids being null, so this is a quick fix
     let testIds = Array.isArray(order.testIds)
       ? order.testIds.map(id => parseInt(id)).filter(id => !isNaN(id))
       : [];
@@ -44,37 +50,6 @@ function Orders() {
     })
     toggleModal()
   }
-
-
-  // Fetch orders with filters
-  const handleGetData = async (activeFilters = filters) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const ordersData = await orderApi.getAll(activeFilters)
-      // Convert testIds string to array if needed
-      const normalizedOrders = Array.isArray(ordersData)
-        ? ordersData.map(order => ({
-            ...order,
-            testIds: typeof order.testIds === 'string' ? JSON.parse(order.testIds) : order.testIds
-          }))
-        : [];
-      setAllOrders(normalizedOrders)
-      setOrders(normalizedOrders)
-    } catch (err) {
-      setError('Failed to fetch orders. Please try again later.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    handleGetData()
-  }, [])
-
-  useEffect(() => {
-    handleGetData(filters)
-  }, [filters])
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target
@@ -92,7 +67,6 @@ function Orders() {
   }
 
   const handleSubmit = async (id, cleanedFormData) => {
-    setLoading(true)
     try {
       const dataToSubmit = cleanedFormData || formData
 
@@ -105,20 +79,17 @@ function Orders() {
       }
       
       if (id) {
-        const updatedOrder = await orderApi.update(id, submitData)
-        await handleGetData()
+        await orderApi.update(id, submitData)
+        await refetchOrders()
       } else {
-        const newOrder = await orderApi.create(submitData)
-        await handleGetData()
+        await orderApi.create(submitData)
+        await refetchOrders()
       }
       setSelectedOrder(null)
       toggleModal()
     } catch (err) {
-      setError('Failed to save order. Please try again.')
       console.error(err)
-    } finally {
-      setLoading(false)
-    }
+    } 
   }
 
   const handleInputChange = (e) => {
@@ -199,21 +170,13 @@ function Orders() {
         </Col>
         <Col md={3} className="d-flex align-items-end">
           <small className="text-muted">
-            Showing {orders.length} orders
+            Showing {filteredOrders.length} orders
           </small>
         </Col>
       </Row>
 
-      {error && (
-        <Alert color="danger" className="mb-3">
-          {error}
-        </Alert>
-      )}
-
-      {loading && <div>Loading...</div>}
-
       <OrderTable 
-        orders={orders}
+        orders={filteredOrders}
         onOrderClick={handleOrderClick}
       />
 
@@ -221,6 +184,8 @@ function Orders() {
       <OrderModal
         isOpen={modal}
         toggle={toggleModal}
+        patients={patients}
+        labTests={labTests}
         mode={selectedOrder ? "edit" : "create"}
         order={selectedOrder}
         formData={formData}

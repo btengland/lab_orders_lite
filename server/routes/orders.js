@@ -20,6 +20,7 @@ router.get("/", async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
       orderBy: { createdAt: "desc" },
+      include: { patient: true },
     });
     res.json(orders);
   } catch (error) {
