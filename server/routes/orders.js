@@ -121,25 +121,4 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Delete order
-router.delete("/:id", async (req, res) => {
-  try {
-    const order = await prisma.order.findUnique({
-      where: { id: parseInt(req.params.id) },
-    });
-
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-
-    await prisma.order.delete({
-      where: { id: parseInt(req.params.id) },
-    });
-
-    res.json({ message: "Order deleted successfully" });
-  } catch (error) {
-    handleError(res, error, "delete order");
-  }
-});
-
 module.exports = router;

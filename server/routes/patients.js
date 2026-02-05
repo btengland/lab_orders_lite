@@ -91,25 +91,4 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Delete patient
-router.delete("/:id", async (req, res) => {
-  try {
-    const patient = await prisma.patients.findUnique({
-      where: { id: parseInt(req.params.id) },
-    });
-
-    if (!patient) {
-      return res.status(404).json({ error: "Patient not found" });
-    }
-
-    await prisma.patients.delete({
-      where: { id: parseInt(req.params.id) },
-    });
-
-    res.json({ message: "Patient deleted successfully" });
-  } catch (error) {
-    handleError(res, error, "delete patient");
-  }
-});
-
 module.exports = router;

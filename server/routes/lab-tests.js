@@ -144,25 +144,4 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Delete lab test
-router.delete("/:id", async (req, res) => {
-  try {
-    const labTest = await prisma.labTests.findUnique({
-      where: { id: parseInt(req.params.id) },
-    });
-
-    if (!labTest) {
-      return res.status(404).json({ error: "Lab test not found" });
-    }
-
-    await prisma.labTests.delete({
-      where: { id: parseInt(req.params.id) },
-    });
-
-    res.json({ message: "Lab test deleted successfully" });
-  } catch (error) {
-    handleError(res, error, "delete lab test");
-  }
-});
-
 module.exports = router;

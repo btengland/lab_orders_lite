@@ -63,13 +63,6 @@ async function testAPI() {
       "Update Patient:",
       `Updated to ${updatedPatient.firstName} ${updatedPatient.lastName}`,
     );
-
-    // Delete patient
-    const delRes = await makeRequest(
-      "DELETE",
-      `/api/patients/${createdPatient.id}`,
-    );
-    console.log("Delete Patient:", delRes.message);
   } catch (error) {
     console.log("Patients CRUD failed:", error.message);
   }
@@ -114,13 +107,6 @@ async function testAPI() {
       updateLabTest,
     );
     console.log("Update Lab Test:", `Updated to ${updatedLabTest.name}`);
-
-    // Delete lab test
-    const delLabRes = await makeRequest(
-      "DELETE",
-      `/api/lab-tests/${createdLabTest.id}`,
-    );
-    console.log("Delete Lab Test:", delLabRes.message);
   } catch (error) {
     console.log("Lab Tests CRUD failed:", error.message);
   }
@@ -186,17 +172,6 @@ async function testAPI() {
       "Update Order:",
       `Updated order status to ${updatedOrder.status}`,
     );
-
-    // Delete order
-    const delOrderRes = await makeRequest(
-      "DELETE",
-      `/api/orders/${createdOrder.id}`,
-    );
-    console.log("Delete Order:", delOrderRes.message);
-
-    // Cleanup: delete patient and lab test
-    await makeRequest("DELETE", `/api/patients/${patient.id}`);
-    await makeRequest("DELETE", `/api/lab-tests/${labTest.id}`);
   } catch (error) {
     console.log("Orders CRUD failed:", error.message);
   }
