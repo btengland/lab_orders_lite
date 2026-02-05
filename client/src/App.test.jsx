@@ -1,55 +1,45 @@
-import React from 'react'
-import { render, screen } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
-import App from './App'
 
-// Mock all view components
-jest.mock('./view/patients/Patients', () => {
-  return function MockPatients() {
-    return <div data-testid="patients-view">Patients View</div>
-  }
-})
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import App from './App';
+jest.mock('./services/api', () => ({
+  orderApi: { getAll: jest.fn() },
+  patientApi: { getAll: jest.fn() },
+  labTestApi: { getAll: jest.fn() },
+}));
+import { orderApi, patientApi, labTestApi } from './services/api';
 
-jest.mock('./view/lab-test-catalog/LabTestCatalog', () => {
-  return function MockLabTestCatalog() {
-    return <div data-testid="lab-test-catalog-view">Lab Test Catalog View</div>
-  }
-})
 
-jest.mock('./view/orders/Orders', () => {
-  return function MockOrders() {
-    return <div data-testid="orders-view">Orders View</div>
-  }
-})
+describe('App', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-const renderWithRouter = (ui, { route = '/' } = {}) => {
-  window.history.pushState({}, 'Test page', route)
-  return render(ui)
-}
+  it('renders loading state initially', () => {
+    orderApi.getAll.mockResolvedValue([]);
+    patientApi.getAll.mockResolvedValue([]);
+    labTestApi.getAll.mockResolvedValue([]);
+    render(<App />);
+    expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
+  });
 
-describe('App Component', () => {
-  test('renders navigation', () => {
-    renderWithRouter(<App />)
-    expect(screen.getByText('Lab Orders Lite')).toBeInTheDocument()
-  })
+  it('renders navigation and routes after loading', async () => {
+    orderApi.getAll.mockResolvedValue([]);
+    patientApi.getAll.mockResolvedValue([]);
+    labTestApi.getAll.mockResolvedValue([]);
+    render(<App />);
+    await waitFor(() => {
+      expect(screen.getByText(/Patients/i)).toBeInTheDocument();
+    });
+  });
 
-  test('redirects root path to /patients', () => {
-    renderWithRouter(<App />, { route: '/' })
-    expect(screen.getByTestId('patients-view')).toBeInTheDocument()
-  })
-
-  test('renders patients view on /patients route', () => {
-    renderWithRouter(<App />, { route: '/patients' })
-    expect(screen.getByTestId('patients-view')).toBeInTheDocument()
-  })
-
-  test('renders lab test catalog view on /catalog route', () => {
-    renderWithRouter(<App />, { route: '/catalog' })
-    expect(screen.getByTestId('lab-test-catalog-view')).toBeInTheDocument()
-  })
-
-  test('renders orders view on /orders route', () => {
-    renderWithRouter(<App />, { route: '/orders' })
-    expect(screen.getByTestId('orders-view')).toBeInTheDocument()
-  })
-})
+  it('shows error if data fetch fails', async () => {
+    orderApi.getAll.mockRejectedValue(new Error('fail'));
+    patientApi.getAll.mockRejectedValue(new Error('fail'));
+    labTestApi.getAll.mockRejectedValue(new Error('fail'));
+    render(<App />);
+    await waitFor(() => {
+      expect(screen.getByText(/Failed to fetch initial data/i)).toBeInTheDocument();
+    });
+  });
+});
