@@ -31,8 +31,9 @@ function Orders() {
 
   const handleOrderClick = (order) => {
     setSelectedOrder(order)
-    
-    let testIds = order.testIds
+    let testIds = Array.isArray(order.testIds)
+      ? order.testIds.map(id => parseInt(id)).filter(id => !isNaN(id))
+      : [];
 
     setFormData({
       patientId: order.patientId,
@@ -51,8 +52,15 @@ function Orders() {
     setError(null)
     try {
       const ordersData = await orderApi.getAll(activeFilters)
-      setAllOrders(ordersData)
-      setOrders(ordersData)
+      // Convert testIds string to array if needed
+      const normalizedOrders = Array.isArray(ordersData)
+        ? ordersData.map(order => ({
+            ...order,
+            testIds: typeof order.testIds === 'string' ? JSON.parse(order.testIds) : order.testIds
+          }))
+        : [];
+      setAllOrders(normalizedOrders)
+      setOrders(normalizedOrders)
     } catch (err) {
       setError('Failed to fetch orders. Please try again later.')
     } finally {
