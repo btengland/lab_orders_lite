@@ -47,4 +47,10 @@ npm run dev
 
 **Database:** SQLite with Prisma.
 
-**What I would have done differently:** If I had more time, I would optimize the the create and search feature so that it doesn't require refetching all data, which currently causes long loading times. The main issue is that the backend returns only the patient ID, not the patient name, so the frontend has to refetch patient details. I would add more validations for number only inputs and other inputs. I would also invest more time in learning best practices for backend testing. While I used AI assistance to help generate many of my tests due to limited unit testing experience, I carefully reviewed and validated all test code. I encountered some type compatibility issues with SQLite. In future projects, I would prefer to use a different database solution. I would have also added more edge cases and error handling. I would also validate the correct data is being sent on both the front and back end (double validations).
+**What I would have done differently:** If I had more time, I would optimize the the create features so that it doesn't require refetching all data, which currently causes long loading times.
+
+I would add more validations for number only inputs and other inputs.
+
+I would also invest more time in learning and implementing best practices for testing. I would have also added more edge cases and better error handling.
+
+I encountered some type compatibility issues with SQLite. In future projects, I would prefer to use a different database solution.
