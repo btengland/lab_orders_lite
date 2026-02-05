@@ -1,3 +1,22 @@
+// Helper function for validating price and turnaroundTime
+function validateLabTestFields({ price, turnaroundTime }) {
+  const MAX_TURNAROUND_HOURS = 8760;
+  if (isNaN(price) || price <= 0) {
+    return { valid: false, error: "Price must be a positive number" };
+  }
+  if (
+    isNaN(turnaroundTime) ||
+    turnaroundTime <= 0 ||
+    !Number.isInteger(Number(turnaroundTime)) ||
+    Number(turnaroundTime) > MAX_TURNAROUND_HOURS
+  ) {
+    return {
+      valid: false,
+      error: `Turnaround time must be a positive integer (hours) and no more than ${MAX_TURNAROUND_HOURS}`,
+    };
+  }
+  return { valid: true };
+}
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 
@@ -38,22 +57,10 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // Validate price is a positive number
-    if (isNaN(price) || price <= 0) {
-      return res.status(400).json({
-        error: "Price must be a positive number",
-      });
-    }
-
-    // Validate turnaround time is a positive integer
-    if (
-      isNaN(turnaroundTime) ||
-      turnaroundTime <= 0 ||
-      !Number.isInteger(Number(turnaroundTime))
-    ) {
-      return res.status(400).json({
-        error: "Turnaround time must be a positive integer (hours)",
-      });
+    // Validate price and turnaroundTime
+    const validation = validateLabTestFields({ price, turnaroundTime });
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error });
     }
 
     const labTest = await prisma.labTests.create({
@@ -64,8 +71,11 @@ router.post("/", async (req, res) => {
         turnaroundTime: parseInt(turnaroundTime),
       },
     });
-
     res.status(201).json(labTest);
+    res.status(201).json({
+      ...labTest,
+      turnaroundTime: labTest.turnaroundTime?.toString(),
+    });
   } catch (error) {
     handleError(res, error, "create lab test");
   }
@@ -82,7 +92,14 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ error: "Lab test not found" });
     }
 
-    res.json(labTest);
+    if (labTest) {
+      res.json({
+        ...labTest,
+        turnaroundTime: labTest.turnaroundTime?.toString(),
+      });
+    } else {
+      res.status(404).json({ error: "Lab test not found" });
+    }
   } catch (error) {
     handleError(res, error, "fetch lab test");
   }
@@ -99,22 +116,10 @@ router.put("/:id", async (req, res) => {
       });
     }
 
-    // Validate price is a positive number
-    if (isNaN(price) || price <= 0) {
-      return res.status(400).json({
-        error: "Price must be a positive number",
-      });
-    }
-
-    // Validate turnaround time is a positive integer
-    if (
-      isNaN(turnaroundTime) ||
-      turnaroundTime <= 0 ||
-      !Number.isInteger(Number(turnaroundTime))
-    ) {
-      return res.status(400).json({
-        error: "Turnaround time must be a positive integer (hours)",
-      });
+    // Validate price and turnaroundTime
+    const validation = validateLabTestFields({ price, turnaroundTime });
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error });
     }
 
     const labTest = await prisma.labTests.update({
@@ -126,8 +131,11 @@ router.put("/:id", async (req, res) => {
         turnaroundTime: parseInt(turnaroundTime),
       },
     });
-
-    res.json(labTest);
+    // Convert BigInt to string
+    res.json({
+      ...labTest,
+      turnaroundTime: labTest.turnaroundTime?.toString(),
+    });
   } catch (error) {
     handleError(res, error, "update lab test");
   }

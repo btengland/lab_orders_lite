@@ -18,42 +18,10 @@ const handleError = (res, error, operation) => {
 // Get all orders
 router.get("/", async (req, res) => {
   try {
-    const { patientName, status } = req.query;
-
-    // Build where clause based on filters
-    let whereClause = {};
-
-    // Filter by status if provided (SQLite doesn't support mode: insensitive)
-    if (status) {
-      whereClause.status = status;
-    }
-
-    // Filter by patient name if provided
-    if (patientName) {
-      const searchTerm = patientName.toLowerCase();
-      whereClause.patient = {
-        OR: [
-          { firstName: { contains: searchTerm } },
-          { lastName: { contains: searchTerm } },
-        ],
-      };
-    }
-
     const orders = await prisma.order.findMany({
-      where: whereClause,
-      include: {
-        patient: true, // Include patient data for filtering and display
-      },
       orderBy: { createdAt: "desc" },
     });
-
-    // Parse testIds from JSON string
-    const ordersWithParsedTestIds = orders.map((order) => ({
-      ...order,
-      testIds: JSON.parse(order.testIds || "[]"),
-    }));
-
-    res.json(ordersWithParsedTestIds);
+    res.json(orders);
   } catch (error) {
     handleError(res, error, "fetch orders");
   }
@@ -76,24 +44,6 @@ router.post("/", async (req, res) => {
         error:
           "Missing required fields: patientId, testIds (array), totalCost, estimatedDate",
       });
-    }
-
-    // Verify patient exists
-    const patient = await prisma.patients.findUnique({
-      where: { id: parseInt(patientId) },
-    });
-    if (!patient) {
-      return res.status(400).json({ error: "Patient not found" });
-    }
-
-    // Verify all test IDs exist
-    const tests = await prisma.labTests.findMany({
-      where: { id: { in: testIds.map((id) => parseInt(id)) } },
-    });
-    if (tests.length !== testIds.length) {
-      return res
-        .status(400)
-        .json({ error: "One or more test IDs are invalid" });
     }
 
     const order = await prisma.order.create({
@@ -123,7 +73,6 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    // Parse testIds from JSON string
     const orderWithParsedTestIds = {
       ...order,
       testIds: JSON.parse(order.testIds || "[]"),
@@ -152,24 +101,6 @@ router.put("/:id", async (req, res) => {
         error:
           "Missing required fields: patientId, testIds (array), totalCost, estimatedDate",
       });
-    }
-
-    // Verify patient exists
-    const patient = await prisma.patients.findUnique({
-      where: { id: parseInt(patientId) },
-    });
-    if (!patient) {
-      return res.status(400).json({ error: "Patient not found" });
-    }
-
-    // Verify all test IDs exist
-    const tests = await prisma.labTests.findMany({
-      where: { id: { in: testIds.map((id) => parseInt(id)) } },
-    });
-    if (tests.length !== testIds.length) {
-      return res
-        .status(400)
-        .json({ error: "One or more test IDs are invalid" });
     }
 
     const order = await prisma.order.update({

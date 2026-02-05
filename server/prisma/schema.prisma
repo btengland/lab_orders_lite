@@ -30,7 +30,7 @@ model LabTests {
   code           String   @unique
   name           String
   price          Float
-  turnaroundTime Int
+  turnaroundTime BigInt
   createdAt      DateTime @default(now())
 }
 
