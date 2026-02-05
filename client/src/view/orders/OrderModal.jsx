@@ -115,9 +115,9 @@ function OrderModal({ isOpen, toggle, mode, order, formData, onInputChange, onTe
             <Label for="testIds">Lab Tests</Label>
             <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #ced4da', borderRadius: '0.25rem', padding: '0.5rem' }}>
               {labTests.map(test => {
-                const testIds = (formData.testIds || []).map(id => parseInt(id)).filter(id => !isNaN(id))
-                const isChecked = testIds.includes(test.id)
-                
+                const rawTestIds = Array.isArray(formData.testIds) ? formData.testIds : [];
+                const testIds = rawTestIds.map(id => parseInt(id)).filter(id => !isNaN(id));
+                const isChecked = testIds.includes(test.id);
                 return (
                   <FormGroup check key={test.id}>
                     <Label check>
@@ -130,7 +130,7 @@ function OrderModal({ isOpen, toggle, mode, order, formData, onInputChange, onTe
                       <span className="text-muted"> (${test.price})</span>
                     </Label>
                   </FormGroup>
-                )
+                );
               })}
             </div>
             {formData.testIds.length === 0 && (
